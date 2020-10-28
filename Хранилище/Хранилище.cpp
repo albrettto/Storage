@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include<time.h>
 using namespace std;
 
 class Shape {
@@ -37,7 +38,7 @@ public:
     }
     virtual void show_parameters() {
         printf("Это точка\n");
-        printf("Координаты ( %i , %i )", x, y);
+        printf("Координаты ( %i , %i )\n", x, y);
     }
     void reset() { // метод сброса координаты точки
         x = 0;
@@ -50,6 +51,7 @@ public:
         printf("Функция move. (x = %i; y = %i)\n", x, y);
     }
 };
+
 class Section : public Shape {
 protected: // атрибуты доступные только классу Section и его дочерним классам
     Point* p1;
@@ -76,28 +78,38 @@ public:
         delete p2;
     }
     virtual void show_parameters() {
-        printf("Это отрезок");
+        printf("Это отрезок\n");
         printf("Начало отрезка ( %i, %i ); Конец отрезка ( %i, %i )\n", p1->x, p1->y, p2->x, p2->y);
     }
     void get_length(const Section& s) { // метод, который находит длину прямой
         int a = (s.p2->x - s.p1->x) * (s.p2->x - s.p1->x);
         int b = (s.p2->y - s.p1->y) * (s.p2->y - s.p1->y);
         double len = sqrt(a + b);
-        printf( "Длина отрезка = %d\n" , len);
+        printf( "Длина отрезка = %f\n" , len);
     }
 };
 
 class Storage {
+private:
+    Shape** objects;
+    int size;
+public:
+    Storage(int size)
+    {
+        this->size = size;
+        objects = new Shape * [size];
+    }
+    void SetObject(int index, Shape* object) {
+        objects[index] = object;
+        object->show_parameters();
+    }
+    Shape GetObject(int index) {
+        return *objects[index];
+    }
 };
 
 int main()
 {
     setlocale(0, "");
-	Storage array;
-    Point p1;
-    Point p2(1, 0);
-    Point p3(p2);
-    Section s1;
-    Section s2(1, 0, 2, 0);
-    Section s3(s2);
+    srand(time(0));
 }
