@@ -2,9 +2,11 @@
 #include <time.h>
 #include <ctime>
 #include <math.h>
+#include <windows.h>
 using namespace std;
 
 #define M_PI 3.14159265358979323846
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 class Shape {
 public:   
@@ -37,7 +39,9 @@ public:
         printf("Точка удалилась\n");
     }
     virtual void show_parameters() {
+        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 6));
         printf("Это точка!  Координаты ( %i , %i )\n", x, y);
+        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 15));
     }
     void reset() { // метод сброса координаты точки
         x = 0;
@@ -74,7 +78,9 @@ public:
         delete p2;
     }
     virtual void show_parameters() {
+        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 6));
         printf("Это отрезок!    Начало отрезка ( %i, %i );  Конец отрезка ( %i, %i )\n", p1->x, p1->y, p2->x, p2->y);
+        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 15));
     }
     void get_length(const Section &s) { // метод, который находит длину прямой
         int a = (s.p2->x - s.p1->x) * (s.p2->x - s.p1->x);
@@ -106,7 +112,9 @@ public:
         printf("Круг удалился.\n");
     }
     virtual void show_parameters() {
+        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 6));
         printf("Это круг!   Координаты начала( %i , %i );   Радиус( %i )\n", x, y, rad);
+        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 15));
     }
     void get_area(const Circle &c) { // метод, который находит площадь круга
         printf("Площадь круга = %f\n", (double) M_PI * (c.rad * c.rad));
@@ -116,6 +124,7 @@ public:
 class Storage {
 private:
     Shape** objects;
+    Shape** objects2;
     int size;
 public:
     Storage() {
@@ -133,7 +142,9 @@ public:
     void Delete_Object(int index) {
         delete objects[index];
         objects[index] = NULL;
+        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 2));
         printf("Удалил объект storage[%i]\n", index);
+        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 15));
     }
     void Method(int index) {
         objects[index]->show_parameters();
@@ -189,34 +200,55 @@ Shape* random_object(int variant) {
             unsigned int start_time = clock(); // начальное время
             for (int i = 0; i < n; ++i) {
                 int variant = 1 + rand() % 3;
+                int num = rand() % n;
                 printf("%i) ", i);
                 switch (variant) {
                 case 1:
-                    printf("Создание и вставка в случайное место хранилища нового объекта\n");
+                    num = rand() % n;
+                    printf("Создание и вставка в [%i] место хранилища нового объекта\n", num);
                     storage.Add_Object(rand() % n, random_object(1 + rand() % 3));
                     break;
                 case 2:
-                    printf("Удаление и уничтожение случайного объекта\n");
-                    storage.Delete_Object(rand() % n);
+                    num = rand() % n;
+                    printf("Удаление и уничтожение [%i] объекта\n", num);
+                    if (!storage.Is_Empty(num))
+                        storage.Delete_Object(rand() % n);
+                    else {
+                        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 4));
+                        printf("Удаление и уничтожение случайного объекта не вышло,\
+ т.к. в %i ячейке не оказалось объекта\n", num);
+                        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 15));
+                    }
                     break;
                 case 3:
-                    int num = rand() % n;
-                    printf("Запуск метода show_parameters() у случайного объекта из хранилища\n");
+                    num = rand() % n;
+                    printf("Запуск метода show_parameters() у [%i] объекта из хранилища\n", num);
                     if (!storage.Is_Empty(num))
                         storage.Method(num);
-                    else
+                    else {
+                        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 4));
                         printf("Запуск метода show_parameters() у случайного объекта неудался,\
- т.к. в случайной ячейке не оказалось объекта\n");
+ т.к. в %i ячейке не оказалось объекта\n", num);
+                        SetConsoleTextAttribute(hConsole, (WORD)((0 << 4) | 15));
+                    }
                     break;
                 }
             }
             unsigned int end_time = clock(); // конечное время
             unsigned int search_time = end_time - start_time; // искомое время
-            cout << "Время потраченное на данный цикл: " << (double)search_time/1000 << " сек." << endl;
+            cout << "\n\nВремя потраченное на данный цикл: " << (double)search_time/1000 << " сек." << endl << endl;
             n *= 10;
             system("pause");
-            storage.Passing_Objects();
-            system("pause");
+            int answer;
+            again:
+            cout << "\n\nХотите просмотреть хранилище? (1 - да, 2 - нет)";
+            cin >> answer;
+            if (answer == 1) {
+                storage.Passing_Objects();
+                system("pause");
+            }
+            if (answer != 1 && answer != 2)
+                goto again;
             system("cls");
         }
     }
