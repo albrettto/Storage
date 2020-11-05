@@ -1,5 +1,6 @@
 ﻿#include <iostream>
-#include<time.h>
+#include <time.h>
+#include <ctime>
 #include <math.h>
 using namespace std;
 
@@ -23,17 +24,14 @@ public:
     Point() {
         x = 0;
         y = 0;
-        //printf("Конструктор Point()\n");
     }
     Point(int x, int y) {
         this->x = x;
         this->y = y;
-        //printf("Конструктор Point(int x, int y)\n");
     }
     Point(Point &p) {
         x = p.x;
         y = p.y;
-        //printf("Конструктор Point(Point &p)\n");
     }
     ~Point() {
         printf("Точка удалилась\n");
@@ -61,17 +59,14 @@ public:
     Section() { // конструктор без параметров
         p1 = new Point;
         p2 = new Point;
-        //printf("Конструктор Section()\n");
     }
     Section(int x1, int y1, int x2, int y2) { // конструктор с параметрами
         p1 = new Point(x1, y1);
         p2 = new Point(x2, y2);
-        //printf("Конструктор Section(int x1, int y1, int x2, int y2)\n");
     }
     Section(const Section &s) { // конструктор копирования
         p1 = new Point(*(s.p1));
         p2 = new Point(*(s.p2));
-        ///printf("Конструктор Section(const Section &s).\n");
     }
     ~Section() { // деструктор
         printf("Отрезок удалился.\n");
@@ -101,13 +96,11 @@ public:
         this->x = x;
         this->y = y;
         this->rad = rad;
-        //printf("Конструктор Circle(int x, int y, int rad).\n");
     }
     Circle(const Circle &c) {
         x = c.x;
         y = c.y;
         rad = c.rad;
-        //printf("Конструктор Circle(const Circle &c).\n");
     }
     ~Circle() {
         printf("Круг удалился.\n");
@@ -115,7 +108,7 @@ public:
     virtual void show_parameters() {
         printf("Это круг!   Координаты начала( %i , %i );   Радиус( %i )\n", x, y, rad);
     }
-    void get_area(const Circle &c) { // метод, который находит длину прямой
+    void get_area(const Circle &c) { // метод, который находит площадь круга
         printf("Площадь круга = %f\n", (double) M_PI * (c.rad * c.rad));
     }
 };
@@ -140,7 +133,7 @@ public:
     void Delete_Object(int index) {
         delete objects[index];
         objects[index] = NULL;
-        printf("Удалил объект arr[%i]\n", index);
+        printf("Удалил объект storage[%i]\n", index);
     }
     void Method(int index) {
         objects[index]->show_parameters();
@@ -171,6 +164,8 @@ public:
         else
             return false;
     }
+    ~Storage() {
+    }
 };
 
 Shape* random_object(int variant) {
@@ -188,31 +183,40 @@ Shape* random_object(int variant) {
     {
         setlocale(0, "");
         srand(time(0));
-        int size = 100;
-        Storage arr(size);
         int n = 100;
-
-        for (int i = 0; i < n; ++i) {
-            int variant = 1 + rand() % 3;
-            printf("%i) ", i);
-            switch (variant) {
-            case 1:
-                printf("Создание и вставка в случайное место хранилища нового объекта\n");
-                arr.Add_Object(rand() % size, random_object(1 + rand() % 3));
-                break;
-            case 2:
-                printf("Удаление и уничтожение случайного объекта\n");
-                arr.Delete_Object(rand() % size);
-                break;
-            case 3:
-                int num = rand() % size;
-                printf("Запуск метода show_parameters() у случайного объекта из хранилища\n");
-                if (!arr.Is_Empty(num))
-                    arr.Method(num);
-                else
-                    printf("Запуск метода show_parameters() у случайного объекта неудался,\
+        while (n != 100000) {
+            Storage storage(n);
+            unsigned int start_time = clock(); // начальное время
+            for (int i = 0; i < n; ++i) {
+                int variant = 1 + rand() % 3;
+                printf("%i) ", i);
+                switch (variant) {
+                case 1:
+                    printf("Создание и вставка в случайное место хранилища нового объекта\n");
+                    storage.Add_Object(rand() % n, random_object(1 + rand() % 3));
+                    break;
+                case 2:
+                    printf("Удаление и уничтожение случайного объекта\n");
+                    storage.Delete_Object(rand() % n);
+                    break;
+                case 3:
+                    int num = rand() % n;
+                    printf("Запуск метода show_parameters() у случайного объекта из хранилища\n");
+                    if (!storage.Is_Empty(num))
+                        storage.Method(num);
+                    else
+                        printf("Запуск метода show_parameters() у случайного объекта неудался,\
  т.к. в случайной ячейке не оказалось объекта\n");
-                break;
+                    break;
+                }
             }
+            unsigned int end_time = clock(); // конечное время
+            unsigned int search_time = end_time - start_time; // искомое время
+            cout << "Время потраченное на данный цикл: " << (double)search_time/1000 << " сек." << endl;
+            n *= 10;
+            system("pause");
+            storage.Passing_Objects();
+            system("pause");
+            system("cls");
         }
     }
