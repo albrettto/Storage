@@ -93,7 +93,9 @@ class Circle: public Shape {
 public:
     int x, y, rad;
     Circle() {
-        //printf("Конструктор Circle().\n");
+        x = 0;
+        y = 0;
+        rad = 0;
     }
     Circle(int x, int y, int rad) {
         this->x = x;
@@ -146,7 +148,7 @@ public:
     int Length_Storage() {
         int len = 0;
         for (int i = 0; i < size; ++i)
-            if (objects[i] != NULL)
+            if (!Is_Empty(i))
                 len++;
         return len;
     }
@@ -154,53 +156,63 @@ public:
         for (int i = 0; i < size; ++i)
         {
             cout << i << ") ";
-            if (objects[i] != NULL)
-                Method(i);
-            else
+            if (Is_Empty(i))
                 printf("Здесь пусто!\n");
+            else
+                Method(i);
         }
     }
-        Shape GetObject(int index) {
-            return *objects[index];
-        }
-    };
+    Shape GetObject(int index) {
+        return *objects[index];
+    }
+    bool Is_Empty(int index) {
+        if (objects[index] == NULL) 
+            return true;
+        else
+            return false;
+    }
+};
+
+Shape* random_object(int variant) {
+    switch (variant) {
+    case 1:
+        return new Point;
+    case 2:
+        return new Section;
+    case 3:
+        return new Circle;
+    }
+}
 
     int main()
     {
         setlocale(0, "");
         srand(time(0));
-        Storage arr(7);
+        int size = 100;
+        Storage arr(size);
         int n = 100;
-        /*for (int i = 0; i < n; ++i) {
-            int variant = 1 + rand() % 4;
+
+        for (int i = 0; i < n; ++i) {
+            int variant = 1 + rand() % 3;
             printf("%i) ", i);
             switch (variant) {
             case 1:
-                printf("\n");
-
+                printf("Создание и вставка в случайное место хранилища нового объекта\n");
+                arr.Add_Object(rand() % size, random_object(1 + rand() % 3));
                 break;
             case 2:
-                printf("\n");
+                printf("Удаление и уничтожение случайного объекта\n");
+                arr.Delete_Object(rand() % size);
                 break;
             case 3:
-                printf("\n");
+                int num = rand() % size;
+                printf("Запуск метода show_parameters() у случайного объекта из хранилища\n");
+                if (!arr.Is_Empty(num))
+                    arr.Method(num);
+                else
+                    printf("Запуск метода show_parameters() у случайного объекта неудался,\
+ т.к. в случайной ячейке не оказалось объекта\n");
                 break;
             }
-        }*/
-        //arr.Add_Object(0, new Circle(1, 3, 5));
-        //cout << "\n\n\n";
-        //arr.Add_Object(1, new Point(1, 3));
-        //cout << "\n\n\n";
-        //arr.Add_Object(2, new Circle(1, 3, 5));
-        //cout << "\n\n\n";
-        //arr.Add_Object(3, new Section(1, 3, 4, 5));
-        //cout << "\n\n\n";
-        //arr.Delete_Object(2);
-        // /*cout << "\n\n\n";
-        // arr.Method(2);*/
-        //printf("Длина хранилища = %i", arr.Length_Storage());
-        //cout << "\n\n\n";
-        //arr.Passing_Objects();
-
-
+        }
     }
